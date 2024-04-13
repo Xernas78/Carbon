@@ -1,7 +1,6 @@
 package dev.xernas.carbon.server;
 
 import dev.xernas.carbon.json.JsonSerializable;
-import dev.xernas.carbon.server.enums.Version;
 
 public class ServerInfo implements JsonSerializable<ServerInfo> {
 

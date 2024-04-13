@@ -2,10 +2,9 @@ package dev.xernas.carbon.protocol.packet.status;
 
 import dev.xernas.carbon.Carbon;
 import dev.xernas.carbon.client.ClientSession;
-import dev.xernas.carbon.protocol.packet.*;
-import dev.xernas.carbon.protocol.packet.enums.Bound;
+import dev.xernas.carbon.protocol.packet.IPacketHandler;
+import dev.xernas.carbon.protocol.packet.PacketReader;
 import dev.xernas.carbon.server.ServerInfo;
-import dev.xernas.carbon.server.enums.Version;
 
 import java.io.IOException;
 
