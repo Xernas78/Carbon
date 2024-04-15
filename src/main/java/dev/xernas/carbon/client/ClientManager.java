@@ -25,8 +25,6 @@ public class ClientManager {
         Integer sessionId = sessionIdCounter;
         sessions.put(sessionId, session);
         sessionIdCounter++;
-        System.out.println("New session created with id " + sessionId);
-        sessions.forEach((id, s) -> System.out.println(id + " -> " + ((InetSocketAddress) s.getClient().getRemoteSocketAddress()).getAddress().getHostName()));
         return sessionId;
     }
 

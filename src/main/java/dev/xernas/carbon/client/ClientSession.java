@@ -1,16 +1,16 @@
 package dev.xernas.carbon.client;
 
-import dev.xernas.carbon.io.MCByteBuf;
-import dev.xernas.carbon.protocol.packet.*;
-import dev.xernas.carbon.protocol.packet.configuration.ConfigurationHandler;
-import dev.xernas.carbon.protocol.packet.enums.Bound;
-import dev.xernas.carbon.protocol.packet.enums.State;
-import dev.xernas.carbon.protocol.packet.handshake.HandshakeHandler;
-import dev.xernas.carbon.protocol.packet.login.LoginDisconnectPacket;
-import dev.xernas.carbon.protocol.packet.login.LoginHandler;
-import dev.xernas.carbon.protocol.packet.status.StatusHandler;
+import dev.xernas.carbon.server.io.MCByteBuf;
+import dev.xernas.carbon.server.protocol.packet.*;
+import dev.xernas.carbon.server.protocol.packet.configuration.ConfigurationHandler;
+import dev.xernas.carbon.server.protocol.enums.Bound;
+import dev.xernas.carbon.server.protocol.enums.State;
+import dev.xernas.carbon.server.protocol.packet.handshake.HandshakeHandler;
+import dev.xernas.carbon.server.protocol.packet.login.LoginDisconnectPacket;
+import dev.xernas.carbon.server.protocol.packet.login.LoginHandler;
+import dev.xernas.carbon.server.protocol.packet.play.PlayHandler;
+import dev.xernas.carbon.server.protocol.packet.status.StatusHandler;
 import dev.xernas.carbon.server.GameProfile;
-import dev.xernas.carbon.server.Server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -29,6 +29,7 @@ public class ClientSession implements Runnable {
     private final StatusHandler statusHandler;
     private final LoginHandler loginHandler;
     private final ConfigurationHandler configurationHandler;
+    private final PlayHandler playHandler;
 
     private State currentState;
     private GameProfile profile;
@@ -42,11 +43,14 @@ public class ClientSession implements Runnable {
         this.statusHandler = new StatusHandler();
         this.loginHandler = new LoginHandler();
         this.configurationHandler = new ConfigurationHandler();
+        this.playHandler = new PlayHandler();
         this.sessionId = manager.newSession(this);
     }
 
     @Override
     public void run() {
+        System.out.println("New session created with id " + sessionId);
+        manager.getSessions().forEach((id, s) -> System.out.println(id + " -> " + ((InetSocketAddress) s.getClient().getRemoteSocketAddress()).getAddress().getHostName()));
         while (true) {
             try {
                 PacketData<String> data = receivePacket();
@@ -97,6 +101,7 @@ public class ClientSession implements Runnable {
         byteBuf.writeVarInt(byteArrayOut.size());
         byteBuf.getOut().write(byteArrayOut.toByteArray());
         byteBuf.getOut().flush();
+        System.out.println("Sent packet " + packet.getClass().getSimpleName() + " with length " + byteArrayOut.size());
         tempByteBuf.getOut().close();
     }
 
@@ -128,6 +133,7 @@ public class ClientSession implements Runnable {
             case STATUS -> statusHandler;
             case LOGIN -> loginHandler;
             case CONFIG -> configurationHandler;
+            case PLAY -> playHandler;
             default -> null;
         };
     }

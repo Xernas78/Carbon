@@ -2,7 +2,7 @@ package dev.xernas.carbon.server;
 
 import dev.xernas.carbon.client.ClientManager;
 import dev.xernas.carbon.client.ClientSession;
-import dev.xernas.carbon.protocol.packet.PacketRegistry;
+import dev.xernas.carbon.server.protocol.packet.PacketRegistry;
 
 import java.io.*;
 import java.net.ServerSocket;
