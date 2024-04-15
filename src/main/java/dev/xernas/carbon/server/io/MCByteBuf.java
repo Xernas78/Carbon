@@ -6,7 +6,9 @@ import dev.xernas.carbon.server.Identifier;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +22,12 @@ public class MCByteBuf {
 
     public MCByteBuf(DataInputStream in, DataOutputStream out) {
         this.in = in;
+        this.out = out;
+    }
+
+    public MCByteBuf(DataInputStream in, int length, DataOutputStream out) throws IOException {
+        ByteBuffer buffer = ByteBuffer.wrap(in.readNBytes(length));
+        this.in = new DataInputStream(new ByteBufferInputStream(buffer));
         this.out = out;
     }
 

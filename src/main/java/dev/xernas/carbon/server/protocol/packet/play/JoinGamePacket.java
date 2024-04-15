@@ -44,7 +44,7 @@ public class JoinGamePacket implements IPacket {
 
     @Override
     public void write(MCByteBuf byteBuf) throws IOException {
-        byteBuf.writeVarInt(entityId);
+        byteBuf.getOut().writeInt(entityId);
         byteBuf.getOut().writeBoolean(hardcore);
         byteBuf.writeIdentifierList(worldNames);
         byteBuf.writeVarInt(maxPlayers);

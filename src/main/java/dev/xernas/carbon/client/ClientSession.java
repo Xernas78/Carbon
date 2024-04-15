@@ -2,7 +2,7 @@ package dev.xernas.carbon.client;
 
 import dev.xernas.carbon.server.io.MCByteBuf;
 import dev.xernas.carbon.server.protocol.packet.*;
-import dev.xernas.carbon.server.protocol.packet.configuration.ConfigurationHandler;
+import dev.xernas.carbon.server.protocol.packet.config.ConfigHandler;
 import dev.xernas.carbon.server.protocol.enums.Bound;
 import dev.xernas.carbon.server.protocol.enums.State;
 import dev.xernas.carbon.server.protocol.packet.handshake.HandshakeHandler;
@@ -28,7 +28,7 @@ public class ClientSession implements Runnable {
     private final HandshakeHandler handshakeHandler;
     private final StatusHandler statusHandler;
     private final LoginHandler loginHandler;
-    private final ConfigurationHandler configurationHandler;
+    private final ConfigHandler configHandler;
     private final PlayHandler playHandler;
 
     private State currentState;
@@ -42,7 +42,7 @@ public class ClientSession implements Runnable {
         this.handshakeHandler = new HandshakeHandler();
         this.statusHandler = new StatusHandler();
         this.loginHandler = new LoginHandler();
-        this.configurationHandler = new ConfigurationHandler();
+        this.configHandler = new ConfigHandler();
         this.playHandler = new PlayHandler();
         this.sessionId = manager.newSession(this);
     }
@@ -65,6 +65,7 @@ public class ClientSession implements Runnable {
                     }
                 }
             } catch (IOException e) {
+                e.printStackTrace();
                 //TODO Handle exception
                 break;
             }
@@ -78,11 +79,15 @@ public class ClientSession implements Runnable {
 
     public PacketData<String> receivePacket() throws IOException {
         int length = byteBuf.readVarInt();
-        int packetId = byteBuf.readVarInt();
+        MCByteBuf tempByteBuf = new MCByteBuf(byteBuf.getIn(), length, byteBuf.getOut());
+        int packetId = tempByteBuf.readVarInt();
+
         IPacket packet = PacketRegistry.getPacket(this, packetId, Bound.SERVER);
         if (packet == null || !PacketRegistry.isValid(packet)) return null;
         PacketData<String> data = new PacketData<>();
-        packet.read(data, byteBuf);
+
+        packet.read(data, tempByteBuf);
+
         if (!data.isValid()) return null;
         data.set("packetName", packet.getClass().getSimpleName());
         data.set("packetLength", length);
@@ -132,7 +137,7 @@ public class ClientSession implements Runnable {
             case HANDSHAKE -> handshakeHandler;
             case STATUS -> statusHandler;
             case LOGIN -> loginHandler;
-            case CONFIG -> configurationHandler;
+            case CONFIG -> configHandler;
             case PLAY -> playHandler;
             default -> null;
         };
